@@ -1,31 +1,25 @@
 #include "gaussian_functions.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 float* forward_elimination(int numRows, int numCols, float* matrix){
-    float* temporary_matrix = (float*)malloc(numRows*numCols*sizeof(float));
-    // looping through the 1st column only
-   for(int i = 0 ; i < numRows * numCols; i++){
-        temporary_matrix[i] = matrix[i];
-     }
-    for(int i1 = 0; i1 < numRows; i1 ++){
-        if(matrix[i1*numCols] != 0){
-            for(int i2 = i1+1; i2 < numRows - 1 || (i2 < numRows && i1 < numRows - 1); i2++){
-                float divider =  (float)matrix[i2*numCols]/matrix[i1*numCols];
-                printf("divider: %f\n", divider);
-                printf("i1: %f i2: %f\n", matrix[i1*numCols], matrix[i2*numCols]);
-                if(divider != 0){
-                    for(int j =0; j < numCols; j ++){
-                        temporary_matrix[i2*numCols + j] =  matrix[i2*numCols + j] - (matrix[i1*numCols + j]*divider);
-                    }
+    int rowPosition = 0;
+    for(int cursor = 0; cursor < (numRows * numCols); cursor++){
+        if(matrix[cursor] != 0){
+            int pivotPosition = floor(cursor/numCols);
+            rowPosition = floor(cursor/numCols);
+            for(int below_cursor = (cursor + numCols); below_cursor < (numRows*numCols); below_cursor += numCols){
+                float divider = matrix[below_cursor]/matrix[cursor];
+                int tempNum = 0;
+                for(int elementPosition = rowPosition*numCols; elementPosition<(rowPosition+1)*numCols; elementPosition++){
+                    matrix[elementPosition + numCols] -= divider*matrix[pivotPosition*numCols + tempNum];
+                    tempNum++;
                 }
+                rowPosition++;
             }
-            break;
-        }else if (matrix[i1*numCols] != 0){
-            temporary_matrix[i1*numCols] = matrix[i1*numCols];
-        }else{
-            temporary_matrix[i1*numCols] = 0;
+            cursor += numCols;
         }
     }
-    return temporary_matrix;
+    return matrix;
 }
